@@ -1,0 +1,133 @@
+#+AUTHOR:Jeremy English
+#+EMAIL:jhe@jeremyenglish.org
+
+* Inverted ISAM files
+This program allows you to index a directory of files for rapid
+searching of keywords. This set of programs is good for a directory of
+static files. Ever time a new file is added to the directory the
+complete index will need to be built.
+
+** buildInvertedFile
+
+*** Usage
+ buildInvertedFile directory output [-e Extension] [-s Stop List File]
+
+
+The program buildInvertedFile takes the following option:
+
+    - The directory of the files that you want to index must be given
+      as the first argument.
+
+    - The 2nd argument must be the base name of the output
+      files. Three files will be create:
+
+      1. The index file will have the extension 'if'. This file
+         contains the keywords, the number of posting entries and the
+         pointer into the posting file.
+
+      2. The posting file will have the extension 'pf'. The posting
+         file contains the pointer into the document table for each
+         document that contains this keyword. It also contain the word
+         frequency of this word in each document.
+
+      3. The document file will have the extension 'df'. It contains
+         the name of all of the documents currently indexed.
+
+    - -e Extension of the files that you want to index. If the option
+      is not provided all files in the given directory will be
+      indexed.
+
+    - -s Stop word list. None of the words in the stop word list file
+      will be added to the index.
+
+** searchInvertedFile
+
+*** Usage
+  searchInvertedFile indexname [keyword1] [keyword2] ... [keywordn]
+
+   - The indexname is the base name of the index file. You will want
+     to use the same name that you used for output when running the
+     buildInvertedFile.
+
+   - You can follow the indexname with as many keyword as you want. 
+
+*** Algorithm
+    foreach keyword
+    the keyword is searched for in the 'if' file
+    if it is found 
+    get the document pointers and frequencys from the "pf" file
+    read in the name of each document from the "df" file
+    add the document name and frequency to the list (maybe tree)
+    if the document is in the list 
+    then increase it's weight by the current frequency
+    after all the key words have been searched for
+    sort the list by weight21
+
+** Data Structures
+
+Tree Node
+
+        Word
+        Document Record
+        left
+        Right
+** Files
+*** Words
+    Words.c and Words.h
+
+    This manages the insert of words in the words tree. It also makes
+    the words structure public.
+
+*** Posting
+    Posting.c and Posting.h
+
+    Manages the Posting record and insertions in to the posting
+    list. This will be need by words.c since it inclues a posting in
+    it's sturcture.
+
+**** Record
+
+    posting_record
+      docid
+      frequency
+      next
+
+*** Document
+    Document.c and Document.h
+
+    Manages the document list. The document sturcture and read and
+    write from the document file.
+
+**** Record
+     
+   DocumentRecord
+     documentName
+
+   DocumentManager
+     docid
+     docrec
+     docfile
+ 
+   create_document_manager(filename)
+   set_new_docname(documentManager)
+   write_document(documentManager)
+   get_document(documentName)
+   close_document_manager
+   get_document_id
+
+*** Stop
+    Stop.c and Stop.h
+
+    Manages the stop list tree, loading and searching through the stop
+    list tree.
+
+**** Record
+
+    stopNode
+      keyword
+      left
+      right
+    
+   create_stop_tree(filename)
+   is_stop_word(stop_tree, keyword)
+    
