@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "posting.h"
+#include "eprintf.h"
 
 /* add_front: Cons and element onto the first of a list */
 Posting *add_front(Posting *listp, Posting *newp){
@@ -35,7 +36,13 @@ static void print_posting(Posting *p, void *arg){
     char *fmt;
     
     fmt = (char *) arg;
-    printf(fmt, p->frequency, p->docid);
+    printf(fmt, p->data.frequency, p->data.docid);
+}
+
+static void write_posting(Posting *p, void *arg){
+    FILE *fp;
+    fp = (FILE *) arg;
+    fwrite(&(p->data), sizeof(p->data), 1, fp);
 }
 
 /* print_posting_list: Applies the function print_posting to each
@@ -44,3 +51,42 @@ void print_posting_list(Posting *p){
     apply(p,print_posting, "Frequency: %d; Document Id: %d\n");
 }
            
+void write_posting_list(Posting *p, FILE *fp){
+    apply(p,write_posting,fp);
+}
+
+void freeall(Posting *p){
+    Posting *next;
+    for(; p != NULL; p = next){
+        next = p->next;
+        free(p);
+    }
+}
+
+Posting *get_posting_list(FILE *fp, int num_postings, int offset){
+    int sz = sizeof(PostingData);
+    PostingData pd;
+    Posting *list;
+    int n,i;
+
+    list = NULL;
+
+    fseek(fp, offset, SEEK_SET);
+
+    for (i = 0; i < num_postings; i++){
+        if ((n = fread(&pd,sz,1,fp)) != 1){
+            int errcode = ferror(fp);
+            fprintf(stderr,"%s Could not read recorda at offset %d. Error code %d\n", 
+                    progname(), offset, errcode);
+            exit(1);
+        }
+        else {
+            Posting *p;
+            p = emalloc(sizeof(*p));
+            p->data.frequency = pd.frequency;
+            p->data.docid = pd.docid;
+            list = add_front(list,p);
+        }
+    }
+    return list;
+}

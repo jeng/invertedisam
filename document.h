@@ -17,15 +17,11 @@
 #define __DOCUMENT_H__
 
 #include <stdint.h>
+#include "fileutils.h"
 
 enum{
     MAX_DOCUMENT_NAME = 255
 };
-
-typedef enum{
-    DM_READ,
-    DM_WRITE
-} DocumentManagerMode;
 
 typedef struct Document  Document;
 
@@ -41,7 +37,7 @@ struct DocumentManager{
     FILE *fp;          /* File pointer */
 };
 
-extern DocumentManager *open_document_manager(char *output_file, DocumentManagerMode mode);
+extern DocumentManager *open_document_manager(char *output_file, BinaryFileMode mode);
 extern void write_document(DocumentManager *dm, char *filename);
 extern void close_document_manager(DocumentManager *dm);
 extern void get_document(DocumentManager *dm, Document *doc, int docid);

@@ -18,6 +18,7 @@
 #include <time.h>
 #include "document.h"
 #include "eprintf.h"
+#include "fileutils.h"
 
 int main(int argc, char **argv){
   DocumentManager *dm;
@@ -34,7 +35,7 @@ int main(int argc, char **argv){
   setprogname(argv[0]);
 
   /* write the document names to the data file */
-  dm = open_document_manager("document.dat",DM_WRITE);  
+  dm = open_document_manager("document.dat",FM_WRITE);  
   while (--argc > 0){
     printf("Writing %s\n", argv[argc]);
     write_document(dm,argv[argc]);
@@ -45,7 +46,7 @@ int main(int argc, char **argv){
  
   
   /* Read in random documents */
-  dm = open_document_manager("document.dat", DM_READ);
+  dm = open_document_manager("document.dat", FM_READ);
   while(i--){
     int n = rand() % doc_num;
     get_document(dm,&doc,n);

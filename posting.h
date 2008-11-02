@@ -18,10 +18,15 @@
 
 #include <stdint.h>
 
-typedef struct Posting Posting;
-struct Posting {
+typedef struct PostingData PostingData;
+struct PostingData{
     uint32_t frequency;
     uint32_t docid;
+};
+
+typedef struct Posting Posting;
+struct Posting {
+    PostingData data;
     Posting *next;
 };
 
@@ -29,5 +34,9 @@ extern Posting *add_front(Posting *listp, Posting *newp);
 extern void apply(Posting *listp,
            void (*fn)(Posting*, void*), void *arg);
 extern void print_posting_list(Posting *p);
+extern void write_posting_list(Posting *p, FILE *fp);
+extern void freeall(Posting *p);
+extern Posting *get_posting_list(FILE *fp, int num_postings, int offset);
 
 #endif /* __POSTING_H_ */
+

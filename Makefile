@@ -2,7 +2,7 @@ CC	= gcc -g
 LIB 	=
 BIN 	= stop-test
 SRC     = stop-test.c 
-OBJ	= eprintf.o stop.o document.o posting.o
+OBJ	= eprintf.o stop.o document.o posting.o fileutils.o
 
 stop-test:	stop-test.o $(OBJ)
 	$(CC) -o $@ $@.o $(OBJ)	$(LIB)

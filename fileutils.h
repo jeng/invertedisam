@@ -16,7 +16,13 @@
 #ifndef __FILEUTILS_H__
 #define __FILEUTILS_H__
 
+typedef enum{
+    FM_WRITE,
+    FM_READ,
+    FM_APPEND
+} BinaryFileMode;
+
 extern int has_extension(char *filename);
 extern void change_extension(char **filename,char *ext);
-
+extern FILE *open_binary_file(char *filename, BinaryFileMode mode);
 #endif /*  __FILEUTILS_H__ */

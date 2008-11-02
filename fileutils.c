@@ -1,3 +1,23 @@
+/* -*- mode: c; c-basic-offset: 4; indent-tabs-mode: nil;  -*-
+ *
+ * Copyright (c) 2008 Jeremy English <jhe@jeremyenglish.org>
+ * 
+ * Permission to use, copy, modify, distribute, and sell this software and its
+ * documentation for any purpose is hereby granted without fee, provided that
+ * the above copyright notice appear in all copies and that both that
+ * copyright notice and this permission notice appear in supporting
+ * documentation.  No representations are made about the suitability of this
+ * software for any purpose.  It is provided "as is" without express or 
+ * implied warranty.
+ * 
+ * Created: 02-November-2008 
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "fileutils.h"
+
 int has_extension(char *filename){
     for(;*filename != '\0';filename++){
         if (*filename == '.'){
@@ -54,3 +74,22 @@ void change_extension(char **filename,char *ext){
         (*filename)[i] = '\0';
     }
 }	    
+
+FILE *open_binary_file(char *filename, BinaryFileMode mode){
+    FILE *fp;
+    char fmode[3];
+
+    if (mode == FM_READ){
+        strncpy(fmode,"rb\0", 3);
+    }else if (mode == FM_WRITE){
+        strncpy(fmode,"wb\0", 3);
+    }else{
+        strncpy(fmode,"ab\0", 3);
+    }
+    if ((fp = fopen(filename,fmode)) == NULL){
+        fprintf(stderr,"%s: Could not open file %s\n", 
+                progname(), filename);
+        exit(1);
+    }
+    return fp;
+}  

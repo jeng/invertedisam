@@ -18,22 +18,16 @@
 #include <string.h>
 #include "document.h"
 #include "eprintf.h"
-
+#include "fileutils.h"
 
 DocumentManager *open_document_manager(char *output_file, 
-                                       DocumentManagerMode mode){
+                                       BinaryFileMode mode){
     DocumentManager *dm;
-    char *fmode = (mode == DM_READ) ? "rb" : "wb";
 
     dm = emalloc(sizeof(*dm));
     dm->filename = estrdup(output_file);
     dm->doc_id = 0;
-    
-    if ((dm->fp = fopen(dm->filename,fmode)) == NULL){
-        fprintf(stderr,"%s: Could not open file %s\n", 
-                progname(), dm->filename);
-        exit(1);
-    }
+    dm->fp = open_binary_file(output_file, mode);
 
     return dm;
 }
