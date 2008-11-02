@@ -19,7 +19,6 @@
 typedef struct Settings Settings;
 
 struct Settings{
-  char *progname;
   int verbose;
   char *index_file_name;
   char *posting_file_name;

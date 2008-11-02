@@ -64,7 +64,7 @@ void write_document(DocumentManager *dm, char *filename){
 void close_document_manager(DocumentManager *dm){
     free(dm->filename);
     dm->filename = NULL;
-    close(dm->fp);
+    fclose(dm->fp);
 }
 
 void get_document(DocumentManager *dm, Document *doc, int docid){
@@ -75,7 +75,9 @@ void get_document(DocumentManager *dm, Document *doc, int docid){
     fseek(dm->fp, offset, SEEK_SET);
 
     if ((n = fread(doc,sz,1,dm->fp)) != 1){
-        fprintf(stderr,"Could not read record %d\n", docid);
+        int errcode = ferror(dm->fp);
+        fprintf(stderr,"%s Could not read record %d. Error code %d\n", 
+                progname(), docid, errcode);
         exit(1);
     }
 }
