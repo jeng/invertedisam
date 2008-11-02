@@ -16,23 +16,34 @@
 #ifndef __DOCUMENT_H__
 #define __DOCUMENT_H__
 
+#include <stdint.h>
+
 enum{
     MAX_DOCUMENT_NAME = 255
 };
 
-typedef struct Document Document;
+typedef enum{
+    DM_READ,
+    DM_WRITE
+} DocumentManagerMode;
+
+typedef struct Document  Document;
 
 struct Document{
-    char name[MAX_DOCUMENT_NAME];
+    char data [MAX_DOCUMENT_NAME];
 };
 
 typedef struct DocumentManager DocumentManager;
 
 struct DocumentManager{
     uint32_t doc_id;   /* Current Document Id */
-    Document document; /* Current Document Name */
-    char filename[MAX_DOCUMENT_NAME]; /* Output file */
+    char *filename;    /* Data file */
+    FILE *fp;          /* File pointer */
 };
 
+extern DocumentManager *open_document_manager(char *output_file, DocumentManagerMode mode);
+extern void write_document(DocumentManager *dm, char *filename);
+extern void close_document_manager(DocumentManager *dm);
+extern void get_document(DocumentManager *dm, Document *doc, int docid);
 
 #endif /* __DOCUMENT_H__ */
