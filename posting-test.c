@@ -10,47 +10,34 @@
  * software for any purpose.  It is provided "as is" without express or 
  * implied warranty.
  * 
- * Created: 01-November-2008 
+ * Created: 02-November-2008 
  */
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
-#include "document.h"
+#include "posting.h"
 #include "eprintf.h"
 
 int main(int argc, char **argv){
-  DocumentManager *dm;
-  int doc_num;
   int i = 100;
-  Document doc;
+  Posting *list;
+  
+  setprogname(argv[0]);
 
   srand(time(NULL));
 
-  if (argc == 1){
-    fprintf(stderr,"Usage\ndocuemnt-test document_name1 document_name2 ... document_nameN\n");
-    exit(1);
-  }
-  setprogname(argv[0]);
-
-  /* write the document names to the data file */
-  dm = open_document_manager("document.dat",DM_WRITE);  
-  while (--argc > 0){
-    printf("Writing %s\n", argv[argc]);
-    write_document(dm,argv[argc]);
-  }
-  doc_num = dm->doc_id;
-  close_document_manager(dm);
-  free(dm);
- 
-  
-  /* Read in random documents */
-  dm = open_document_manager("document.dat", DM_READ);
+  list = NULL;
   while(i--){
-    int n = rand() % doc_num;
-    get_document(dm,&doc,n);
-    printf("Document %.4d: %s\n", n, doc.data);
+    int n = rand() % 100;
+    Posting *newp;
+    newp = emalloc(sizeof(*newp));
+    newp->frequency = rand() % 100;
+    newp->docid = i;
+    list = add_front(list,newp);
   }
+
+  print_posting_list(list);
 
   return 0;
 }

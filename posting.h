@@ -16,11 +16,18 @@
 #ifndef __POSTING_H__
 #define __POSTING_H__
 
+#include <stdint.h>
+
 typedef struct Posting Posting;
 struct Posting {
     uint32_t frequency;
     uint32_t docid;
     Posting *next;
 };
+
+extern Posting *add_front(Posting *listp, Posting *newp);
+extern void apply(Posting *listp,
+           void (*fn)(Posting*, void*), void *arg);
+extern void print_posting_list(Posting *p);
 
 #endif /* __POSTING_H_ */
