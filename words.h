@@ -16,6 +16,8 @@
 #ifndef __WORDS_H__
 #define __WORDS_H__
 
+#include <stdint.h>
+#include <stdio.h>
 #include "posting.h"
 
 enum{
@@ -25,13 +27,23 @@ enum{
     MAX_WORD_LEN = 50 
 };
 
-typedef struct IndexWord IndexWord;
-struct IndexWord {
+typedef struct IndexWordData IndexWordData;
+struct IndexWordData{
     char word[MAX_WORD_LEN];
     uint32_t num_docs;
-    Posting posting;
-    Nameval *left; /* lesser */
-    Nameval *right; /* greater */
+    uint32_t posting_offset;
 };
+
+typedef struct IndexWord IndexWord;
+struct IndexWord {
+    IndexWordData data;
+    Posting *posting;
+    IndexWord *left; /* lesser */
+    IndexWord *right; /* greater */
+};
+
+extern IndexWord *new_index_word(char *word);
+extern IndexWord *insert_word(IndexWord *treep, IndexWord *newp, uint32_t docid);
+extern void print_tree(IndexWord *treep);
 
 #endif /*__WORDS_H__ */

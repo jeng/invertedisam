@@ -50,11 +50,14 @@ static void write_posting(Posting *p, void *arg){
 void print_posting_list(Posting *p){
     apply(p,print_posting, "Frequency: %d; Document Id: %d\n");
 }
-           
+
+/* write_posting_list: Write all of the posting nodes out to a binary
+   file */           
 void write_posting_list(Posting *p, FILE *fp){
     apply(p,write_posting,fp);
 }
 
+/* freeall: Free each element of the list */
 void freeall(Posting *p){
     Posting *next;
     for(; p != NULL; p = next){
@@ -63,6 +66,8 @@ void freeall(Posting *p){
     }
 }
 
+/* get_posting_list: Read a number of posting from a certain offset
+   from the beginning of a file. */
 Posting *get_posting_list(FILE *fp, int num_postings, int offset){
     int sz = sizeof(PostingData);
     PostingData pd;
@@ -89,4 +94,13 @@ Posting *get_posting_list(FILE *fp, int num_postings, int offset){
         }
     }
     return list;
+}
+
+Posting *find_posting(Posting *listp, uint32_t docid){
+    for (; listp != NULL; listp = listp->next){
+        if (listp->data.docid == docid){
+            return listp;
+        }
+    }
+    return NULL;
 }
