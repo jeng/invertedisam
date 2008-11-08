@@ -25,4 +25,6 @@ struct Settings{
   char *document_file_name;
 };
 
+extern void set_output_filenames(Settings *settings,char *basename);
+
 #endif /* __SETTINGS_H__ */
