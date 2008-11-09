@@ -1,6 +1,6 @@
 #+AUTHOR:Jeremy English
 #+EMAIL:jhe@jeremyenglish.org
-
+	
 * Inverted ISAM files
 This program allows you to index a directory of files for rapid
 searching of keywords. This set of programs is good for a directory of

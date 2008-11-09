@@ -29,7 +29,7 @@ int main(int argc, char **argv){
   srand(time(NULL));
 
   if (argc == 1){
-    fprintf(stderr,"Usage\ndocuemnt-test document_name1 document_name2 ... document_nameN\n");
+    fprintf(stderr,"Usage\ndocument-test document_name1 document_name2 ... document_nameN\n");
     exit(1);
   }
   setprogname(argv[0]);

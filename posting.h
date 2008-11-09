@@ -38,6 +38,7 @@ extern void write_posting_list(Posting *p, FILE *fp);
 extern void freeall(Posting *p);
 extern Posting *get_posting_list(FILE *fp, int num_postings, int offset);
 extern Posting *find_posting(Posting *listp, uint32_t docid);
+extern uint32_t posting_length(Posting *listp);
 
 #endif /* __POSTING_H_ */
 

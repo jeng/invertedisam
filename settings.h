@@ -29,6 +29,6 @@ struct Settings{
     StopWord *stop_words;
 };
 
-extern void set_output_filenames(Settings *settings,char *basename);
+extern void set_output_filenames(Settings *settings,char *basename, BinaryFileMode mode);
 
 #endif /* __SETTINGS_H__ */

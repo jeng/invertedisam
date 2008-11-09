@@ -20,7 +20,7 @@
 #include "eprintf.h"
 #include "fileutils.h"
 
-void set_output_filenames(Settings *settings,char *basename){
+void set_output_filenames(Settings *settings,char *basename, BinaryFileMode mode){
     char *doc;
     settings->index_file_name = estrdup(basename);
     change_extension(&(settings->index_file_name), ".if");
@@ -28,6 +28,6 @@ void set_output_filenames(Settings *settings,char *basename){
     change_extension(&(settings->posting_file_name), ".pf");
     doc = estrdup(basename);
     change_extension(&doc, ".df");
-    settings->dm = open_document_manager(doc,FM_WRITE);
+    settings->dm = open_document_manager(doc,mode);
     free(doc);
 }

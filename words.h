@@ -44,6 +44,9 @@ struct IndexWord {
 
 extern IndexWord *new_index_word(char *word);
 extern IndexWord *insert_word(IndexWord *treep, IndexWord *newp, uint32_t docid);
-extern void print_tree(IndexWord *treep);
+extern void print_word_tree(IndexWord *treep);
+extern void write_index_file(IndexWord *treep, char *index_filename, char *posting_filename);
+extern int get_index_recnum(FILE *fp, int recno, IndexWordData *wr);
+
 
 #endif /*__WORDS_H__ */

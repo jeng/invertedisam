@@ -24,5 +24,7 @@ typedef enum{
 
 extern int has_extension(char *filename);
 extern void change_extension(char **filename,char *ext);
+
+/* Uses fopen to open the file. Call fclose to close it. */
 extern FILE *open_binary_file(char *filename, BinaryFileMode mode);
 #endif /*  __FILEUTILS_H__ */

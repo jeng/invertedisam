@@ -165,8 +165,6 @@ int read_file(Settings *settings, IndexWord **treep, char *filename){
                 progname, filename);
         return 0;
     }
-    /* write the document out to the document file */
-    write_document(settings->dm, filename);
     if (settings->verbose){
         printf("Reading file %s\n",filename);
     }
@@ -189,6 +187,9 @@ int read_file(Settings *settings, IndexWord **treep, char *filename){
         }
     }
     fclose(fp);
+    /* write the document out to the document file */
+    write_document(settings->dm, filename);
+
     return 1;
 }
 
@@ -228,7 +229,7 @@ int main(int argc, char **argv){
         fprintf(stderr,"%s: Could not find an output name.\n", progname());
         usage();
     }else{
-        set_output_filenames(&settings, output->value);
+        set_output_filenames(&settings, output->value, FM_WRITE);
 
         if (settings.verbose){
             printf("We are going to use output name: %s\n",output->value);
@@ -266,7 +267,7 @@ int main(int argc, char **argv){
                 exit(1);
             }
             strncpy(fullpath, directory->value, pn + 1);
-            if (fullpath[pn] != '/'){
+            if (fullpath[pn] != '/' && directory->value[0] != '/'){
                 fullpath[pn] = '/';
             }
             if (!strncat(fullpath,dentry->d_name,fn-strlen(fullpath))){
@@ -296,7 +297,17 @@ int main(int argc, char **argv){
                 progname(), directory->value);
     }
     
-    print_tree(treep);
+    close_document_manager(settings.dm);
+    free(settings.dm);
+    settings.dm = NULL;
+        
+    if (settings.verbose)
+        printf("Writing index and posting files\n");
+
+    write_index_file(treep, settings.index_file_name, settings.posting_file_name);
+
+    if (settings.verbose)
+        printf("Finished writing all inverted files\n");
 
     return 1;
 }

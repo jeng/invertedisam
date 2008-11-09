@@ -15,6 +15,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdint.h>
 #include "posting.h"
 #include "eprintf.h"
 
@@ -30,7 +31,7 @@ void apply(Posting *listp,
     for (; listp != NULL; listp = listp->next)
         (*fn)(listp, arg); /* call the function */
 }
-        
+
 /* print_posting: print the frequency and the docid */
 static void print_posting(Posting *p, void *arg){
     char *fmt;
@@ -41,8 +42,13 @@ static void print_posting(Posting *p, void *arg){
 
 static void write_posting(Posting *p, void *arg){
     FILE *fp;
+    int outsz;
     fp = (FILE *) arg;
-    fwrite(&(p->data), sizeof(p->data), 1, fp);
+    outsz = fwrite(&(p->data), sizeof(p->data), 1, fp);
+    if (outsz != 1){
+        fprintf(stderr,"%s: An error occured while writing to the posting file.\noutsz = %d error = %d\n", progname(), outsz, ferror(fp));
+        exit(1);
+    }
 }
 
 /* print_posting_list: Applies the function print_posting to each
@@ -81,7 +87,7 @@ Posting *get_posting_list(FILE *fp, int num_postings, int offset){
     for (i = 0; i < num_postings; i++){
         if ((n = fread(&pd,sz,1,fp)) != 1){
             int errcode = ferror(fp);
-            fprintf(stderr,"%s Could not read recorda at offset %d. Error code %d\n", 
+            fprintf(stderr,"%s Could not read record at offset %d. Error code %d\n", 
                     progname(), offset, errcode);
             exit(1);
         }
@@ -103,4 +109,12 @@ Posting *find_posting(Posting *listp, uint32_t docid){
         }
     }
     return NULL;
+}
+
+/* posting_length: Returns the lengt of the posting list. */
+uint32_t posting_length(Posting *listp){
+    uint32_t i=0;
+    for (; listp != NULL; listp = listp->next)
+        i++;
+    return i;
 }

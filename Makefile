@@ -19,6 +19,10 @@ words-test: words-test.o $(OBJ)
 buildInvertedIsam: buildInvertedIsam.o $(OBJ)
 	$(CC) -o $@ $@.o $(OBJ) $(LIB)
 
+searchInvertedIsam: searchInvertedIsam.o $(OBJ)
+	$(CC) -o $@ $@.o $(OBJ) $(LIB)
+
+
 all: stop-test document-manager-test posting-test words-test	
 
 clean: 

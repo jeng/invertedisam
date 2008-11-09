@@ -16,10 +16,11 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include <math.h>
+#include <stdio.h>
 #include "words.h"
 #include "posting.h"
 #include "eprintf.h"
+#include "fileutils.h"
 
 /* insert: insert newp in treep, return treep */
 IndexWord *insert_word(IndexWord *treep, IndexWord *newp, uint32_t docid) {
@@ -80,18 +81,63 @@ IndexWord *new_index_word(char *word){
     return iw;
 }
 
-void print_tree(IndexWord *treep){
+void print_word_tree(IndexWord *treep){
     if (treep == NULL){
         return;
     }
     else{
-        print_tree(treep->left);
+        print_word_tree(treep->left);
         printf("Num Docs %6d Word %s\n", 
                treep->data.num_docs, 
                treep->data.word);
         printf("Postings:\n");
         print_posting_list(treep->posting);
         printf("------------------------------------------------------------\n");
-        print_tree(treep->right);
+        print_word_tree(treep->right);
     }
+}
+
+static void write_files(IndexWord *treep, FILE *ifp, FILE *pfp){
+    int outsz;
+    if (treep == NULL)
+        return;    
+    write_files(treep->left, ifp, pfp);
+    /* Output index word and the update the posting file */
+    treep->data.posting_offset = ftell(pfp);
+    outsz = fwrite(&(treep->data), sizeof(treep->data), 1, ifp);
+    if (outsz != 1){
+        fprintf(stderr,"%s: An error occured while writing to the index file.\n", progname());
+        exit(1);
+    }
+    write_posting_list(treep->posting, pfp);
+    write_files(treep->right, ifp, pfp);
+}
+
+
+void write_index_file(IndexWord *treep, char *index_filename, char *posting_filename){
+    FILE *ifp;
+    FILE *pfp;
+    
+    ifp = open_binary_file(index_filename, FM_WRITE);
+    pfp = open_binary_file(posting_filename, FM_WRITE);
+
+    write_files(treep,ifp,pfp);
+
+    fclose(ifp);
+    fclose(pfp);
+}
+
+/* get_index_recnum: Set wr to the record refered to by recnum. Return
+   true if the recnum was found false otherwise. */
+int get_index_recnum(FILE *fp, int recno, IndexWordData *wr){
+    int n;
+    long int sz = sizeof(*wr);
+
+    fseek(fp, recno * sz, SEEK_SET);
+
+    if ((n = fread(wr,sz,1,fp)) != 1){
+        return 0;
+    }
+    
+    return 1;
 }
