@@ -16,13 +16,17 @@
 #ifndef __SETTINGS_H__
 #define __SETTINGS_H__
 
+#include "document.h"
+#include "stop.h"
+
 typedef struct Settings Settings;
 
 struct Settings{
-  int verbose;
-  char *index_file_name;
-  char *posting_file_name;
-  char *document_file_name;
+    int verbose;
+    char *index_file_name;
+    char *posting_file_name;
+    DocumentManager *dm;
+    StopWord *stop_words;
 };
 
 extern void set_output_filenames(Settings *settings,char *basename);

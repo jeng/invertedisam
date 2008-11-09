@@ -19,7 +19,6 @@
 #include "eprintf.h"
 
 int main(int argc, char **argv){
-  Settings *settings;
   StopWord *stw;
   
   if (argc == 1){
@@ -28,11 +27,9 @@ int main(int argc, char **argv){
   }
   setprogname(argv[0]);
 
-  settings = emalloc(sizeof(*settings));
+  printf("Creating stop tree from %s\n", argv[1]);
   
-  settings->verbose = 1;
-  
-  stw = create_stop_tree(settings, argv[1]);
+  stw = create_stop_tree(argv[1]);
   
   while (--argc > 1){
     printf("%s %s a keyword\n", argv[argc], 

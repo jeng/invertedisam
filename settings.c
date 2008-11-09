@@ -21,10 +21,13 @@
 #include "fileutils.h"
 
 void set_output_filenames(Settings *settings,char *basename){
+    char *doc;
     settings->index_file_name = estrdup(basename);
     change_extension(&(settings->index_file_name), ".if");
     settings->posting_file_name = estrdup(basename);
     change_extension(&(settings->posting_file_name), ".pf");
-    settings->document_file_name = estrdup(basename);
-    change_extension(&(settings->document_file_name), ".df");
+    doc = estrdup(basename);
+    change_extension(&doc, ".df");
+    settings->dm = open_document_manager(doc,FM_WRITE);
+    free(doc);
 }

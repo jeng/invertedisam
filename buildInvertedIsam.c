@@ -19,12 +19,14 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <dirent.h>
+#include <stdint.h>
 #include "stop.h"
 #include "words.h"
 #include "eprintf.h"
 #include "posting.h"
 #include "document.h"
 #include "fileutils.h"
+#include "settings.h"
 
 typedef enum ParamType ParamType;
 enum ParamType { DIRECTORY, OUTPUT_FILE, FILE_EXTENSION, STOP_LIST, VERBOSE};
@@ -153,9 +155,8 @@ int verbose_messages(Param *params){
     return (find_param(params, VERBOSE) != NULL);
 }
 
-int read_file(settings *settings, Nameval **treep, char *filename){
-    const int MAX_BUF = 0xFF;
-    char buf[MAX_BUF];
+int read_file(Settings *settings, IndexWord **treep, char *filename){
+    char buf[MAX_WORD_LEN];
     FILE *fp;
     int i;
 
@@ -164,7 +165,9 @@ int read_file(settings *settings, Nameval **treep, char *filename){
                 progname, filename);
         return 0;
     }
-    if (verbose){
+    /* write the document out to the document file */
+    write_document(settings->dm, filename);
+    if (settings->verbose){
         printf("Reading file %s\n",filename);
     }
     for(i = 0;!feof(fp);){
@@ -175,13 +178,14 @@ int read_file(settings *settings, Nameval **treep, char *filename){
         else{
             buf[i] = '\0';
             i = 0;
-            if (strlen(buf) > 1){
-               *treep = insert(*treep, add_node(buf, 1));
+            if (strlen(buf) > 1 && ! is_stop_word(settings->stop_words, buf)){
+                *treep = insert_word(*treep, new_index_word(buf), settings->dm->doc_id);
             }
         }
-        if (i == MAX_BUF){
-            fprintf(stderr,"%s: Word is to long\n", progname);
-            exit(1);
+        if (i == MAX_WORD_LEN){
+            fprintf(stderr,"%s: Word is to long %s skipping\n", progname(), buf);
+            i = 0;
+            buf[i] = '\0';
         }
     }
     fclose(fp);
@@ -193,10 +197,11 @@ int main(int argc, char **argv){
     Param *directory;
     Param *output;
     Param *stop;
-    Param *extp = get_next_ext(p);
+    Param *extp;
     StopWord *stopword;
     Settings settings;
     struct stat st;
+    IndexWord *treep;
 
     setprogname(argv[0]);
     if (argc == 1) usage();
@@ -207,7 +212,8 @@ int main(int argc, char **argv){
     settings.verbose = verbose_messages(params);
     extp = find_param(params,FILE_EXTENSION);
 
-    stopword = NULL;
+    settings.stop_words = NULL;
+    treep = NULL;
 
     if (directory == NULL){
         fprintf(stderr,"%s: Could not find a directory.\n", progname());
@@ -226,14 +232,14 @@ int main(int argc, char **argv){
 
         if (settings.verbose){
             printf("We are going to use output name: %s\n",output->value);
-            printf("Document filename: %s\n",settings.document_file_name);
+            printf("Document filename: %s\n",settings.dm->filename);
             printf("Posting  filename: %s\n",settings.posting_file_name);
             printf("Index    filename: %s\n",settings.index_file_name);
         }
     }
 
     if (stop != NULL){
-        stopword = create_stop_tree(&settings, stop->value);
+        settings.stop_words = create_stop_tree(stop->value);
     }
 
     if(!stat (directory->value, &st) &&
@@ -254,16 +260,16 @@ int main(int argc, char **argv){
             int pn = strlen(directory->value);
             int dn = strlen(dentry->d_name);
             int fn = pn + dn + 1;
-            fullpath = calloc(sizeof(char), fn);
+            fullpath = calloc(sizeof(char), fn+1);
             if (fullpath == NULL){
-                fprintf("%s: output of memory.\n",progname());
+                fprintf(stderr,"%s: output of memory.\n",progname());
                 exit(1);
             }
             strncpy(fullpath, directory->value, pn + 1);
             if (fullpath[pn] != '/'){
                 fullpath[pn] = '/';
             }
-            if (!strcat(fullpath,dentry->d_name)){
+            if (!strncat(fullpath,dentry->d_name,fn-strlen(fullpath))){
                 fprintf(stderr,"%s: Could not build complete filename.\n", progname());
                 exit(1);
             }
@@ -272,22 +278,25 @@ int main(int argc, char **argv){
                 int n = strlen(fullpath);
                 int en = strlen(extp->value);
                 if (n > en && !strcasecmp(fullpath + n - en, extp->value)){
-                    if (!read_file(&setting, &treep, fullpath)){
+                    if (!read_file(&settings, &treep, fullpath)){
                         fprintf(stderr,"%s: Could not read file.", progname());
                     }
                 }
             }
             else{
-                if (!read_file(&setting, &treep, fullpath)){
+                if (!read_file(&settings, &treep, fullpath)){
                     fprintf(stderr,"%s: Could not read file.", progname());
                 }
             }
+            free(fullpath);
         }
     }
     else {
         fprintf(stderr,"%s: Unknown directory %s\n",
-                progname(), p->value);
+                progname(), directory->value);
     }
     
+    print_tree(treep);
+
     return 1;
 }

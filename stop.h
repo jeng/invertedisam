@@ -16,7 +16,6 @@
 #ifndef __STOP_H__
 #define __STOP_H__
 
-#include "settings.h"
 
 typedef struct StopWord StopWord;
 struct StopWord {
@@ -26,7 +25,7 @@ struct StopWord {
 };
 
 /* Returns a stop tree that can latter be search for keywords */
-extern StopWord* create_stop_tree(Settings *settings, char *filename);
+extern StopWord* create_stop_tree(char *filename);
 
 /* Is the keyword passed in the stop tree */
 extern int is_stop_word(StopWord *swt, char *keyword);

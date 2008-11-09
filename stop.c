@@ -17,7 +17,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "stop.h"
-#include "settings.h"
 #include "eprintf.h"
 
 /* Returns a stopword node with the string set */
@@ -47,7 +46,7 @@ static StopWord *insert(StopWord *treep, StopWord *newp) {
     return treep;
 }
 
-static int read_file(char *progname,int verbose, StopWord **treep, char *filename){
+static int read_file(char *progname, StopWord **treep, char *filename){
     const int MAX_BUF = 0xFF;
     char buf[MAX_BUF];
     FILE *fp;
@@ -57,9 +56,6 @@ static int read_file(char *progname,int verbose, StopWord **treep, char *filenam
         fprintf(stderr,"%s: Could not open file %s\n", 
                 progname, filename);
         return 0;
-    }
-    if (verbose){
-        printf("Reading file %s\n",filename);
     }
     for(i = 0;!feof(fp);){
         char c = fgetc(fp);
@@ -83,11 +79,10 @@ static int read_file(char *progname,int verbose, StopWord **treep, char *filenam
 }
 
 
-StopWord *create_stop_tree(Settings *settings, char *input_file){
+StopWord *create_stop_tree(char *input_file){
     StopWord *stw;
     stw = NULL;
-    read_file(progname(), settings->verbose,
-              &stw, input_file);
+    read_file(progname(), &stw, input_file);
     return stw;
 }
 
