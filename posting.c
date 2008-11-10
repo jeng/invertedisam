@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <math.h>
 #include "posting.h"
 #include "eprintf.h"
 
@@ -102,6 +103,42 @@ Posting *get_posting_list(FILE *fp, int num_postings, int offset){
     return list;
 }
 
+void append_unique_posting_list(FILE *fp, Posting **listp, int num_postings, int offset){
+    int sz = sizeof(PostingData);
+    PostingData pd;
+    Posting *list;
+    int n, i;
+
+    fseek(fp, offset, SEEK_SET);
+
+    for (i = 0; i < num_postings; i++){
+        if ((n = fread(&pd,sz,1,fp)) != 1){
+            int errcode = ferror(fp);
+            fprintf(stderr,"%s Could not read record at offset %d. Error code %d\n", 
+                    progname(), offset, errcode);
+            exit(1);
+        }
+        else {
+            Posting *p;
+            /* Don't add duplicates. But if we find one then update
+               it's frequency. */
+            list = *listp;
+            for (; list != NULL; list = list->next){
+                if (list->data.docid == pd.docid){
+                    list->data.frequency += pd.frequency;
+                    break;
+                }
+            }
+            if (list == NULL){
+                p = emalloc(sizeof(*p));
+                p->data.frequency = pd.frequency;
+                p->data.docid = pd.docid;
+                *listp = add_front(*listp,p);
+            }
+        }
+    }
+}
+
 Posting *find_posting(Posting *listp, uint32_t docid){
     for (; listp != NULL; listp = listp->next){
         if (listp->data.docid == docid){
@@ -118,3 +155,70 @@ uint32_t posting_length(Posting *listp){
         i++;
     return i;
 }
+
+
+static Posting *merge(Posting *a, Posting *b){
+    Posting *c;
+    Posting *head;
+    int firstpass = 1;
+
+    do{
+        if (a == NULL && b != NULL){
+            if (firstpass)
+                head = b;
+            else
+                c->next = b;
+            c = b;
+            b = b->next;
+        }
+        else if (a != NULL && b == NULL){
+            if (firstpass)
+                head = a;
+            else
+                c->next = a;
+            c = a;
+            a = a->next;
+        }            
+        else if (a->data.frequency >= b->data.frequency){
+            if (firstpass)
+                head = a;
+            else
+                c->next = a;
+            c = a;
+            a = a->next;
+
+        }
+        else{
+            if (firstpass)
+                head = b;
+            else
+                c->next = b;
+            c = b;
+            b = b->next;
+        }
+        firstpass = 0;
+    } while(! (a == NULL &&  b == NULL));
+    return head;
+}
+
+Posting *sort_posting_list(Posting *listp, uint32_t len){
+    if (len <= 1){
+        return listp;
+    }
+    else {
+        int p1 = floor(len/2);
+        int p2 = len - p1;
+        Posting *a;
+        Posting *b;
+        int i;
+        
+         a = listp;
+         for (i = 2; i <= p1; i++)
+             listp = listp->next;
+         b = listp->next;
+         listp->next = NULL;
+         return merge(sort_posting_list(a, p1), sort_posting_list(b, p2));
+     }
+ }
+
+    

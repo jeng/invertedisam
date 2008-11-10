@@ -39,6 +39,10 @@ extern void freeall(Posting *p);
 extern Posting *get_posting_list(FILE *fp, int num_postings, int offset);
 extern Posting *find_posting(Posting *listp, uint32_t docid);
 extern uint32_t posting_length(Posting *listp);
+extern void append_unique_posting_list(FILE *fp, Posting **listp, int num_postings, int offset);
+
+/* Sort the posting list passed by frequency in descending order */
+extern Posting *sort_posting_list(Posting *listp, uint32_t len);
 
 #endif /* __POSTING_H_ */
 

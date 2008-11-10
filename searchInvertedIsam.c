@@ -137,9 +137,10 @@ int search_keywords(char *filename, Keyword *keywords, IndexWordData **iwd){
             int n = wr.num_docs;
             IndexWordData *p = (*iwd+i);
             memcpy(p,&wr,sizeof(wr));
-            printf("Found %s with %d document%s\n",
-                   p->word, p->num_docs,
-                   (n == 1) ? "." : "s.");
+            /*            printf("Found %s with %d document%s\n",
+             *      p->word, p->num_docs,
+             *      (n == 1) ? "." : "s."); 
+             */
 
             i++;
         }else{
@@ -185,31 +186,34 @@ int main(int argc, char **argv){
         found = search_keywords(settings.index_file_name, kp, &iwd);
 
 
-#if 1
-        /* Ok. For now lets readin the posting files and dump the document names */
+        /* Display the results with the most frequent occuring first. */
         {
             FILE *pf;
+            Posting *p;
+
+            p = NULL;
             pf = open_binary_file(settings.posting_file_name, FM_READ);
 
             for(i = 0; i < found; i++){
-                Posting *p, *tmp;
-                printf("Word: %.50s num_docs: %.6d offset: %.8x\n",
-                       iwd->word, iwd->num_docs, iwd->posting_offset);
-                p = get_posting_list(pf, iwd->num_docs, iwd->posting_offset);
-                tmp = p;
-                for (; p != NULL; p = p->next){
-                    Document doc;
-                    get_document(settings.dm, &doc, p->data.docid);
-                    printf("Document: %s has a frequency of %.6d\n",
-                           doc.data, p->data.frequency);
-                }
-                    
+                /*                printf("Word: %.50s num_docs: %.6d offset: %.8x\n",
+                                  iwd->word, iwd->num_docs, iwd->posting_offset); */
+                append_unique_posting_list(pf, &p, iwd->num_docs, iwd->posting_offset);
                 iwd++;
-                freeall(tmp);
+
             }
+
+            p = sort_posting_list(p, posting_length(p));
+
+            for (; p != NULL; p = p->next){
+                Document doc;
+                get_document(settings.dm, &doc, p->data.docid);
+                printf("Frequency %.8x Document %s\n",
+                       p->data.frequency, doc.data);
+            }
+
+            freeall(p);
             fclose(pf);
         }
-#endif
 
     }
     return 0;
