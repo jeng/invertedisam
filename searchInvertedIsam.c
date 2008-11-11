@@ -50,6 +50,8 @@ Keyword *insert(Keyword *keyp, Keyword *newkey){
 Keyword *new_keyword(char *str){
     Keyword *kw;
     int ln = strlen(str) + 1;
+    int i;
+
     kw = malloc(sizeof(*kw));
     if (kw == NULL){
         fprintf(stderr,"Could not get memory.\n");
@@ -60,7 +62,9 @@ Keyword *new_keyword(char *str){
         fprintf(stderr,"Could not get memory.\n");
         exit(1);
     }
-    strncpy(kw->keyword,str,ln);
+    for (i = 0; i < ln; i++)
+        kw->keyword[i] = tolower(str[i]);
+
     kw->next = NULL;
     return kw;
 }
