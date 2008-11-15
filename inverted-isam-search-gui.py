@@ -13,7 +13,7 @@ SEARCH = "searchInvertedIsam "
 basename = ""
 
 def run_grep(gui):
-    srch = ' "' + gui.get_search_string() + '" '
+    srch = ' ' + gui.get_search_string() + ' '
     grep_str = SEARCH + basename + " " + srch
           
     p = Popen(grep_str,
