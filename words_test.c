@@ -39,7 +39,7 @@ int main(int argc, char **argv){
 
     printf("Printing Word Tree\n");
     printf("------------------------------------------------------------\n");
-    print_tree(treep);
+    print_word_tree(treep);
 
     return 1;
 }
