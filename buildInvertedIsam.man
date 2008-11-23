@@ -1,0 +1,58 @@
+.TH BuildInvertedIsam 1 "22-Nov-2008" 
+.SH NAME
+buildInvertedIsam - Builds a set of inverted isam files for a static directory
+.SH SYNOPSIS
+.B buildInvertedIsam
+\-d  \fIdirectory\fP \-o \fIoutput\fP
+[\-e \fIextension\fP]  [\-s \fIstop list file\fP] [\-v]
+
+.SH DESCRIPTION
+
+.I buildInvertedIsam 
+allows you to index a directory of files for rapid searching of
+keywords. This set of programs is good for a directory of static
+files. Ever time a new file is added to the directory the complete
+index will need to be built.
+
+
+.SH OPTIONS
+.I buildInvertedIsam
+accepts the following options:
+.TP 8
+.B \-d \fIdirectory\fP
+The name of the directory that you want to index.
+.TP 8
+.B \-o \fIoutput\fP
+Basename of the output files that will be created. Three files will be
+created. The file with the 'if' extension is the index file and it
+contains all of the keywords. The 'pf' extension is for the posting
+file and contains the list of the files that contain the
+keyword. Finally, the 'df' file contains a list of all of the
+documents.
+.TP 8
+.B \-e \fIextension\fP
+Allows you to index files that have a certain extension.
+.TP 8
+.B \-s \fIstop list file\fP
+A stop list is a file of keywords separated by a newline. Each word
+in the stop list file will not get indexed.
+.TP 8
+.B \-v 
+Use verbose output while building the index files.
+
+
+.SH SEE ALSO
+.BR searchInvertedIsam
+.SH COPYRIGHT
+Jeremy English; 2008.
+ 
+Permission to use, copy, modify, distribute, and sell this software
+and its documentation for any purpose is hereby granted without fee,
+provided that the above copyright notice appear in all copies and that
+both that copyright notice and this permission notice appear in
+supporting documentation.  No representations are made about the
+suitability of this software for any purpose.  It is provided "as is"
+without express or implied warranty.
+.SH AUTHOR
+Jeremy English; 2008.
+

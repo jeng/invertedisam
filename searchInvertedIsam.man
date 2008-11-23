@@ -1,0 +1,42 @@
+.TH SearchInvertedIsam 1 "22-Nov-2008" 
+.SH NAME
+searchInvertedIsam - Search a set of inverted isam files for a set of given keywords.
+.SH SYNOPSIS
+.B searchInvertedIsam \fIfilename\fP \fIkeywords\fP
+
+.SH DESCRIPTION
+
+.I searchInvertedIsam 
+Allows you to search a set of inverted isam files for a set of given
+keywords.  It returns a list of documents sorted by frequency.  The
+frequency is calculated by the number of times each keyword is
+contained in the document.
+
+
+.SH OPTIONS
+.I searchInvertedIsam
+accepts the following options:
+.TP 8
+.B \fIfilename\fP
+This is the base filename of the index files. If you have the index
+files foo.if, foo.pf and foo.df you would pass foo as the filename.
+.TP 8
+.B \fIkeywords\fP
+One or more keywords that you want to search for in the index
+file. Each keyword is seperated by a space.
+
+.SH SEE ALSO
+.BR buildInvertedIsam
+.SH COPYRIGHT
+Jeremy English; 2008.
+ 
+Permission to use, copy, modify, distribute, and sell this software
+and its documentation for any purpose is hereby granted without fee,
+provided that the above copyright notice appear in all copies and that
+both that copyright notice and this permission notice appear in
+supporting documentation.  No representations are made about the
+suitability of this software for any purpose.  It is provided "as is"
+without express or implied warranty.
+.SH AUTHOR
+Jeremy English; 2008.
+
