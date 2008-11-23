@@ -1,5 +1,9 @@
 OBJ	= eprintf.c stop.c document.c posting.c fileutils.c words.c settings.c
 
+# man pages
+dist_man_MANS= buildInvertedIsam.1 searchInvertedIsam.1
+
+
 bin_PROGRAMS = buildInvertedIsam searchInvertedIsam
 buildInvertedIsam_SOURCES = buildInvertedIsam.c $(OBJ)
 searchInvertedIsam_SOURCES = searchInvertedIsam.c $(OBJ)
