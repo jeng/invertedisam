@@ -17,8 +17,6 @@ def run_grep(gui):
         flags = " -e "
     else:
         flags = " "
-
-    print "Flags: ", flags
         
     srch = ' ' + gui.get_search_string() + ' '
     grep_str = SEARCH + basename + flags + srch
@@ -163,7 +161,6 @@ class Gui:
             buf,self.__default_tag)
 
     def exact_phrase(self):
-        print "Active", self.__chkBtn.get_active()
         return self.__chkBtn.get_active()
 
 #main..
