@@ -103,7 +103,7 @@ Posting *get_posting_list(FILE *fp, int num_postings, int offset){
     return list;
 }
 
-void append_unique_posting_list(FILE *fp, Posting **listp, int num_postings, int offset){
+void append_unique_posting_list(FILE *fp, Posting **listp, int num_postings, int offset, int use_doc_freq){
     int sz = sizeof(PostingData);
     PostingData pd;
     Posting *list;
@@ -125,13 +125,13 @@ void append_unique_posting_list(FILE *fp, Posting **listp, int num_postings, int
             list = *listp;
             for (; list != NULL; list = list->next){
                 if (list->data.docid == pd.docid){
-                    list->data.frequency += pd.frequency;
+                    list->data.frequency += use_doc_freq ? pd.frequency : 1;
                     break;
                 }
             }
             if (list == NULL){
                 p = emalloc(sizeof(*p));
-                p->data.frequency = pd.frequency;
+                p->data.frequency = use_doc_freq ? pd.frequency : 1;
                 p->data.docid = pd.docid;
                 *listp = add_front(*listp,p);
             }

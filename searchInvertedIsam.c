@@ -155,20 +155,76 @@ int search_keywords(char *filename, Keyword *keywords, IndexWordData **iwd){
     return i;
 }
 
+int has_exact_phrase(char *filename, Keyword *kp, int nkeys){
+    char buf[MAX_WORD_LEN];
+    FILE *fp;
+    int i;
+    int word_to_check = 0;
+    Keyword *head;
+
+    head = kp;
+    if ((fp = fopen(filename,"r")) == NULL){
+        fprintf(stderr,"%s: Could not open file %s\n", 
+                progname, filename);
+        return 0;
+    }
+    for(i = 0;!feof(fp);){
+        char c = fgetc(fp);
+        if (isalnum(c)){
+            buf[i++] = tolower(c);
+        }
+        else{
+            buf[i] = '\0';
+            i = 0;
+        TRY_AGAIN:           
+            if (strcmp(buf,kp->keyword) == 0){
+                kp = kp->next;
+                word_to_check++;
+            } else{
+                if (word_to_check > 0){
+                    kp = head;
+                    word_to_check = 0;
+                    goto TRY_AGAIN;
+                }
+            }
+            if (word_to_check >= nkeys){
+                fclose(fp);
+                return 1;
+            }
+
+        }
+        if (i == MAX_WORD_LEN){
+/*             fprintf(stderr,"%s: Word is to long %s skipping\n", progname(), buf); */
+            kp = head;
+            word_to_check = 0;
+            i = 0;
+            buf[i] = '\0';
+        }
+    }
+    fclose(fp);
+
+    return 0;
+}
+
+
 int main(int argc, char **argv){
     setprogname(argv[0]);
-    if (argc == 1){
-        fprintf(stderr, "Usage:\n%s filename keywords\n",progname());
+    if (argc <= 2){
+        fprintf(stderr, "Usage:\n%s filename [-e] keywords\n",progname());
         exit(1);
     }
     else{
         int i;
         char *filename = argv[1];
-        int nkey = argc - 2;
+        int exact_phrase = (strcmp(argv[2], "-e") == 0);
+        int keysIgnore = exact_phrase ? 3 : 2;
+        int nkey = argc - keysIgnore;
         Keyword *kp;
         IndexWordData *iwd;
         Settings settings;
         int found;
+
+/*         printf("Exact Phrase %s\nargv[2] = %s\n", exact_phrase ? "YES" : "NO", argv[2]); */
 
         iwd = emalloc(sizeof(*iwd) * nkey);
 
@@ -177,7 +233,7 @@ int main(int argc, char **argv){
         kp = NULL;
             
         for(i = 0; i < nkey; i++){
-            kp = insert(kp,new_keyword(argv[i+2]));
+            kp = insert(kp,new_keyword(argv[i+keysIgnore]));
         }
 #if 0
         {
@@ -199,9 +255,9 @@ int main(int argc, char **argv){
             pf = open_binary_file(settings.posting_file_name, FM_READ);
 
             for(i = 0; i < found; i++){
-                /*                printf("Word: %.50s num_docs: %.6d offset: %.8x\n",
-                                  iwd->word, iwd->num_docs, iwd->posting_offset); */
-                append_unique_posting_list(pf, &p, iwd->num_docs, iwd->posting_offset);
+/*                                printf("Word: %.50s num_docs: %.6d offset: %.8x\n", */
+/*                                   iwd->word, iwd->num_docs, iwd->posting_offset); */
+                append_unique_posting_list(pf, &p, iwd->num_docs, iwd->posting_offset, !exact_phrase);
                 iwd++;
 
             }
@@ -210,9 +266,22 @@ int main(int argc, char **argv){
 
             for (; p != NULL; p = p->next){
                 Document doc;
-                get_document(settings.dm, &doc, p->data.docid);
-                printf("Frequency %.8x Document %s\n",
-                       p->data.frequency, doc.data);
+                if (exact_phrase){
+                    if (p->data.frequency == found) {
+                        /* run the lexer on this document */
+                        /* if we find the exact phrase then print it out */
+                        get_document(settings.dm, &doc, p->data.docid);
+                        if (has_exact_phrase(doc.data, kp, found)){
+                            printf("Frequency %.8x Document %s\n",
+                                   p->data.frequency, doc.data);
+                        }
+                    }
+                }else{
+                    get_document(settings.dm, &doc, p->data.docid);
+                    printf("Frequency %.8x Document %s\n",
+                           p->data.frequency, doc.data);
+
+                }
             }
 
             freeall(p);

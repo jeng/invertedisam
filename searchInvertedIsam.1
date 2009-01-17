@@ -2,7 +2,7 @@
 .SH NAME
 searchInvertedIsam - Search a set of inverted isam files for a set of given keywords.
 .SH SYNOPSIS
-.B searchInvertedIsam \fIfilename\fP \fIkeywords\fP
+.B searchInvertedIsam \fIfilename\fP \fI[-e]\fP \fIkeywords\fP
 
 .SH DESCRIPTION
 
@@ -20,6 +20,11 @@ accepts the following options:
 .B \fIfilename\fP
 This is the base filename of the index files. If you have the index
 files foo.if, foo.pf and foo.df you would pass foo as the filename.
+.TP 8
+.B \fI-e\fP
+If the -e parameter is passed the following keywords will be taken as
+an exact phrase. Only document that have the exact phrase will be
+returned.
 .TP 8
 .B \fIkeywords\fP
 One or more keywords that you want to search for in the index

@@ -13,8 +13,15 @@ SEARCH = "searchInvertedIsam "
 basename = ""
 
 def run_grep(gui):
+    if (gui.exact_phrase() == True):
+        flags = " -e "
+    else:
+        flags = " "
+
+    print "Flags: ", flags
+        
     srch = ' ' + gui.get_search_string() + ' '
-    grep_str = SEARCH + basename + " " + srch
+    grep_str = SEARCH + basename + flags + srch
           
     p = Popen(grep_str,
               stdout=PIPE, shell=True)
@@ -112,6 +119,10 @@ class Gui:
         self.__text.width = 400
         editBox.add(self.__text)
 
+        self.__chkBtn = gtk.CheckButton("Match Exact Phrase")
+        self.__chkBtn.set_active(True)
+        editBox.add(self.__chkBtn)
+        
 
         okBtn = gtk.Button()
         okBtn.set_label("Ok")
@@ -150,6 +161,10 @@ class Gui:
         self.__memoTxt.insert_with_tags(
             self.__memoTxt.get_end_iter(),
             buf,self.__default_tag)
+
+    def exact_phrase(self):
+        print "Active", self.__chkBtn.get_active()
+        return self.__chkBtn.get_active()
 
 #main..
 progname = sys.argv[0]
