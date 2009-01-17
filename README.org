@@ -7,6 +7,9 @@ searching of keywords. This set of programs is good for a directory of
 static files. Ever time a new file is added to the directory the
 complete index will need to be built.
 
+The search program can return results based on the frequency of
+keywords in a document or by exact phrases.
+
 ** buildInvertedFile
 
 *** Usage
@@ -43,91 +46,21 @@ The program buildInvertedFile takes the following option:
 ** searchInvertedFile
 
 *** Usage
-  searchInvertedFile indexname [keyword1] [keyword2] ... [keywordn]
+  searchInvertedFile indexname [-e] [keyword1] [keyword2] ... [keywordn]
 
    - The indexname is the base name of the index file. You will want
      to use the same name that you used for output when running the
      buildInvertedFile.
 
-   - You can follow the indexname with as many keyword as you want. 
+   - If the -e parameter is passed the following keywords will be
+     taken as an exact phrase. Only document that have the exact
+     phrase will be returned.
 
-*** Algorithm
-    foreach keyword
-    the keyword is searched for in the 'if' file
-    if it is found 
-    get the document pointers and frequencys from the "pf" file
-    read in the name of each document from the "df" file
-    add the document name and frequency to the list (maybe tree)
-    if the document is in the list 
-    then increase it's weight by the current frequency
-    after all the key words have been searched for
-    sort the list by weight21
+   - You can follow the indexname with as many keyword as you want.
+   
+  
+  
 
-** Data Structures
+   
 
-Tree Node
 
-        Word
-        Document Record
-        left
-        Right
-** Files
-*** Words
-    Words.c and Words.h
-
-    This manages the insert of words in the words tree. It also makes
-    the words structure public.
-
-*** Posting
-    Posting.c and Posting.h
-
-    Manages the Posting record and insertions in to the posting
-    list. This will be need by words.c since it inclues a posting in
-    it's sturcture.
-
-**** Record
-
-    posting_record
-      docid
-      frequency
-      next
-      
-*** Document
-    Document.c and Document.h
-
-    Manages the document list. The document sturcture and read and
-    write from the document file.
-
-**** Record
-     
-   DocumentRecord
-     documentName
-
-   DocumentManager
-     docid
-     docrec
-     docfile
- 
-   create_document_manager(filename)
-   set_new_docname(documentManager)
-   write_document(documentManager)
-   get_document(documentName)
-   close_document_manager
-   get_document_id
-
-*** Stop
-    Stop.c and Stop.h
-
-    Manages the stop list tree, loading and searching through the stop
-    list tree.
-
-**** Record
-
-    stopNode
-      keyword
-      left
-      right
-    
-   create_stop_tree(filename)
-   is_stop_word(stop_tree, keyword)
-    
